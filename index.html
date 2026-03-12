@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="반도체 핵심 원자재 공급망 인터랙티브 지도 — 이란 전쟁 지정학 분석 (2026)">
+<meta property="og:title" content="반도체 원자재 카르토그래피 — 이란 전쟁 공급망 위기">
+<meta property="og:description" content="헬륨, 브롬, 갈륨, 희토류 등 8종 원자재의 글로벌 공급망과 이란 분쟁 위험도를 인터랙티브 지도로 탐색하세요.">
+<meta name="robots" content="index, follow">
+<title>반도체 원자재 카르토그래피 — 이란 전쟁 공급망 위기 | 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0a0d12;color:#e0e6f0;font-family:'Rajdhani',sans-serif;overflow-x:hidden;min-height:100vh}
+  .scanlines{position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,180,255,.018) 2px,rgba(0,180,255,.018) 4px)}
+  .wrap{display:flex;flex-direction:column;min-height:100vh;position:relative;z-index:1}
+
+  /* Header */
+  header{border-bottom:1px solid rgba(0,180,255,.25);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,10,20,.85);flex-shrink:0}
+  .hd-left .sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:#00b4ff;letter-spacing:4px;margin-bottom:3px}
+  .hd-left h1{font-size:20px;font-weight:700;letter-spacing:1px;color:#e0f4ff}
+  .hd-right{text-align:right;font-family:'Share Tech Mono',monospace;font-size:10px;line-height:1.8}
+  .hd-right .alert{color:#ff1744;font-weight:700;font-size:11px;letter-spacing:2px}
+  .hd-right .dim{color:#666}
+
+  /* Main layout */
+  .main{display:flex;flex:1;height:calc(100vh - 58px)}
+
+  /* Left panel */
+  .left-panel{width:210px;border-right:1px solid rgba(0,180,255,.15);background:rgba(0,8,18,.75);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+  .panel-label{padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#00b4ff;border-bottom:1px solid rgba(0,180,255,.12)}
+  .mat-btn{background:transparent;border:none;border-left:3px solid transparent;border-bottom:1px solid rgba(0,180,255,.07);color:#7a9ab0;text-align:left;padding:10px 13px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:.5px;transition:all .2s;width:100%}
+  .mat-btn:hover{background:rgba(0,180,255,.05);color:#b0d4e8}
+  .mat-btn.active{background:rgba(0,180,255,.09);color:#fff}
+  .mat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0;vertical-align:middle}
+  .mat-name{font-weight:600;display:block;margin-left:16px}
+  .mat-risk{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;margin-left:16px;margin-top:2px;display:block}
+
+  /* Map center */
+  .map-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .war-banner{padding:8px 16px;border-bottom:1px solid transparent;display:flex;align-items:center;gap:10px;font-size:12px;flex-shrink:0;transition:all .3s}
+  .war-badge{padding:3px 10px;font-family:'Share Tech Mono',monospace;font-weight:700;font-size:9px;letter-spacing:2px;border-radius:2px;flex-shrink:0}
+  .war-text{color:#b0c8d8;line-height:1.5;font-size:11px}
+  .svg-wrap{flex:1;position:relative;overflow:hidden}
+  #map-svg{width:100%;height:100%;display:block}
+
+  /* Tooltip */
+  #tooltip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,10,25,.96);border-radius:4px;padding:12px 16px;min-width:260px;max-width:380px;font-size:12px;pointer-events:none;display:none;box-shadow:0 0 24px rgba(0,0,0,.5);z-index:10}
+  #tooltip .tt-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  #tooltip .tt-country{font-weight:700;font-size:14px;color:#fff}
+  #tooltip .tt-badge{font-family:'Share Tech Mono',monospace;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;letter-spacing:1px}
+  #tooltip .tt-share{font-family:'Share Tech Mono',monospace;color:#00b4ff;font-size:10px;margin-bottom:4px}
+  #tooltip .tt-detail{color:#90a8b8;line-height:1.6;font-size:11px}
+
+  /* Right panel */
+  .right-panel{width:250px;border-left:1px solid rgba(0,180,255,.15);background:rgba(0,8,18,.75);overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0}
+  .rp-section{padding:12px 14px;border-bottom:1px solid rgba(0,180,255,.12)}
+  .rp-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#00b4ff;margin-bottom:8px}
+  .rp-mat-name{font-size:16px;font-weight:700;margin-bottom:4px;transition:color .3s}
+  .rp-mat-use{font-size:11px;color:#7a9ab0;line-height:1.6}
+  .bar-row{margin-bottom:8px}
+  .bar-meta{display:flex;justify-content:space-between;margin-bottom:3px;font-size:11px}
+  .bar-country{color:#c0d8e8}
+  .bar-pct{font-weight:700}
+  .bar-track{background:rgba(0,180,255,.08);height:4px;border-radius:2px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+  .war-detail{font-size:11px;color:#90a8b8;line-height:1.7}
+  .strait-box{margin-top:10px;padding:8px 10px;background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.3);border-radius:3px;font-size:11px;color:#ff6b6b;line-height:1.6}
+  .legend-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#7a9ab0;letter-spacing:1px}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .alerts-list{margin:0;padding:0 0 0 16px;font-size:10px;color:#7a9ab0;line-height:2;font-family:'Share Tech Mono',monospace}
+  .alerts-box{margin:10px 12px 14px;padding:10px 12px;background:rgba(255,23,68,.06);border:1px solid rgba(255,23,68,.2);border-radius:3px}
+  .alerts-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:#ff4444;margin-bottom:6px}
+
+  /* References footer */
+  .refs-footer{border-top:1px solid rgba(0,180,255,.2);background:rgba(0,6,14,.9);padding:16px 28px;flex-shrink:0}
+  .refs-toggle{background:none;border:1px solid rgba(0,180,255,.3);color:#00b4ff;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;padding:5px 14px;cursor:pointer;border-radius:2px;transition:all .2s}
+  .refs-toggle:hover{background:rgba(0,180,255,.1)}
+  .refs-grid{display:none;margin-top:14px;display:none;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:4px 24px}
+  .refs-grid.open{display:grid}
+  .refs-section-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:#00b4ff;margin:10px 0 4px;grid-column:1/-1}
+  .ref-link{display:block;font-size:11px;color:#5c8fa8;text-decoration:none;padding:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s;font-family:'Rajdhani',sans-serif}
+  .ref-link:hover{color:#00e5ff;text-decoration:underline}
+  .ref-num{color:#3a5a6e;margin-right:6px;font-family:'Share Tech Mono',monospace;font-size:10px}
+  .ref-source{color:#7aacbf;font-weight:600;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="wrap">
+
+<header>
+  <div class="hd-left">
+    <div class="sub">STRATEGIC INTELLIGENCE // SEMICONDUCTOR SUPPLY CHAIN</div>
+    <h1>CRITICAL RAW MATERIALS CARTOGRAPHY</h1>
+  </div>
+  <div class="hd-right">
+    <div class="alert">⚠ ACTIVE CONFLICT</div>
+    <div>US-ISRAEL vs IRAN</div>
+    <div class="dim">MARCH 2026</div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Left panel -->
+  <div class="left-panel">
+    <div class="panel-label">SELECT MATERIAL</div>
+    <div id="mat-list"></div>
+  </div>
+
+  <!-- Map -->
+  <div class="map-area">
+    <div class="war-banner" id="war-banner">
+      <span class="war-badge" id="war-badge"></span>
+      <span class="war-text" id="war-text"></span>
+    </div>
+    <div class="svg-wrap">
+      <svg id="map-svg" viewBox="0 0 800 400">
+        <!-- Grid -->
+        <g id="grid"></g>
+        <!-- Equator -->
+        <line x1="0" y1="110" x2="800" y2="110" stroke="rgba(0,180,255,0.1)" stroke-width="0.8" stroke-dasharray="4,4"/>
+        <!-- Continents -->
+        <g id="continents"></g>
+        <!-- Lines -->
+        <g id="lines"></g>
+        <!-- Central chip -->
+        <g id="chip" transform="translate(385,185)">
+          <rect x="0" y="0" width="30" height="30" rx="3" fill="rgba(0,10,20,0.9)" stroke="#00b4ff" stroke-width="1.5"/>
+          <rect x="6" y="6" width="18" height="18" rx="1" fill="rgba(0,180,255,0.1)" stroke="#00b4ff" stroke-width="0.8"/>
+          <line x1="8" y1="0" x2="8" y2="5" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="14" y1="0" x2="14" y2="5" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="20" y1="0" x2="20" y2="5" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="8" y1="25" x2="8" y2="30" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="14" y1="25" x2="14" y2="30" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="20" y1="25" x2="20" y2="30" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="0" y1="8" x2="5" y2="8" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="0" y1="14" x2="5" y2="14" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="0" y1="20" x2="5" y2="20" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="25" y1="8" x2="30" y2="8" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="25" y1="14" x2="30" y2="14" stroke="#00b4ff" stroke-width="1.2"/>
+          <line x1="25" y1="20" x2="30" y2="20" stroke="#00b4ff" stroke-width="1.2"/>
+          <text x="15" y="17" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#00b4ff" font-weight="700" font-family="Share Tech Mono,monospace">IC</text>
+        </g>
+        <!-- Nodes -->
+        <g id="nodes"></g>
+        <!-- Strait marker -->
+        <g id="strait" style="display:none">
+          <circle id="strait-pulse" cx="468" cy="91" r="6" fill="none" stroke="#ff1744" stroke-width="1.5" opacity="0.7"/>
+          <text x="468" y="82" fill="#ff1744" font-size="6.5" text-anchor="middle" letter-spacing="1" font-family="Share Tech Mono,monospace">STRAIT OF HORMUZ</text>
+        </g>
+      </svg>
+      <div id="tooltip">
+        <div class="tt-top">
+          <span class="tt-country" id="tt-country"></span>
+          <span class="tt-badge" id="tt-badge"></span>
+        </div>
+        <div class="tt-share" id="tt-share"></div>
+        <div class="tt-detail" id="tt-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="right-panel">
+    <div class="rp-section">
+      <div class="rp-label">SELECTED MATERIAL</div>
+      <div class="rp-mat-name" id="rp-name"></div>
+      <div class="rp-mat-use" id="rp-use"></div>
+    </div>
+    <div class="rp-section" id="rp-bars"></div>
+    <div class="rp-section">
+      <div class="rp-label" style="color:#ff4444">WAR CONTEXT</div>
+      <div class="war-detail" id="rp-war"></div>
+      <div class="strait-box" id="rp-strait" style="display:none"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-label">RISK LEGEND</div>
+      <div class="legend-row"><span class="legend-dot" style="background:#ff1744"></span>CRITICAL</div>
+      <div class="legend-row"><span class="legend-dot" style="background:#ff6b35"></span>HIGH</div>
+      <div class="legend-row"><span class="legend-dot" style="background:#ffd740"></span>MEDIUM</div>
+      <div class="legend-row"><span class="legend-dot" style="background:#69f0ae"></span>LOW</div>
+    </div>
+    <div class="alerts-box">
+      <div class="alerts-label">KEY ALERTS</div>
+      <ul class="alerts-list">
+        <li>Qatar Ras Laffan offline (He)</li>
+        <li>Hormuz partially restricted</li>
+        <li>Israel/Jordan bromine at risk</li>
+        <li>China Ga/REE export controls</li>
+        <li>South Korea: 14 items at risk</li>
+        <li>Samsung/SK Hynix −$200B mktcap</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- References footer -->
+<div class="refs-footer">
+  <button class="refs-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▲  참고 출처 닫기':'▼  참고 출처 24건 열기'">▼  참고 출처 24건 열기</button>
+  <div class="refs-grid" id="refs">
+    <div class="refs-section-title">[ 헬륨 · 카타르 · 호르무즈 해협 ]</div>
+    <a class="ref-link" href="https://cen.acs.org/business/specialty-chemicals/Iran-war-threatens-global-helium/104/web/2026/03" target="_blank"><span class="ref-num">1</span><span class="ref-source">C&EN</span>Iran war threatens global helium supply</a>
+    <a class="ref-link" href="https://www.cnbc.com/2026/03/02/qatars-state-owned-energy-company-halts-lng-production-after-iran-drone-attacks.html" target="_blank"><span class="ref-num">2</span><span class="ref-source">CNBC</span>Qatar's state-owned energy company halts LNG production after Iran drone attacks</a>
+    <a class="ref-link" href="https://www.bloomberg.com/news/articles/2026-03-09/qatar-said-to-push-lng-expansion-to-2027-after-iran-drone-attack" target="_blank"><span class="ref-num">3</span><span class="ref-source">Bloomberg</span>Qatar Said to Push LNG Expansion to 2027 After Iran Drone Attack</a>
+    <a class="ref-link" href="https://thepeninsulaqatar.com/article/02/03/2026/iran-drones-target-mesaieed-power-plant-qatarenergy-ras-laffan-facility-ministry-of-defense" target="_blank"><span class="ref-num">4</span><span class="ref-source">The Peninsula Qatar</span>Iran drones target Mesaieed power plant, QatarEnergy Ras Laffan facility</a>
+    <a class="ref-link" href="https://www.worldoil.com/news/2026/3/2/qatar-shuts-ras-laffan-lng-plant-after-iranian-drone-strike/" target="_blank"><span class="ref-num">5</span><span class="ref-source">World Oil</span>Qatar shuts Ras Laffan LNG plant after Iranian drone strike</a>
+    <a class="ref-link" href="https://en.wikipedia.org/wiki/2026_Iranian_strikes_on_Qatar" target="_blank"><span class="ref-num">6</span><span class="ref-source">Wikipedia</span>2026 Iranian strikes on Qatar</a>
+
+    <div class="refs-section-title">[ 반도체 공급망 — 헬륨·브롬·에너지 복합 위험 ]</div>
+    <a class="ref-link" href="https://www.cnbc.com/2026/03/10/iran-war-semiconductor-memory-chip-impact.html" target="_blank"><span class="ref-num">7</span><span class="ref-source">CNBC</span>How the Iran war and rising energy prices are threatening semiconductor demand</a>
+    <a class="ref-link" href="https://www.trendforce.com/news/2026/03/09/news-middle-east-energy-turmoil-raises-chip-risks-spotlight-on-tsmc-power-use-and-bromine-for-dram/" target="_blank"><span class="ref-num">8</span><span class="ref-source">TrendForce</span>Middle East Energy Turmoil Raises Chip Risks, Spotlight on TSMC Power Use and Bromine for DRAM</a>
+    <a class="ref-link" href="https://en.sedaily.com/international/2026/03/05/qatar-helium-halt-threatens-global-chip-supply" target="_blank"><span class="ref-num">9</span><span class="ref-source">Seoul Economic Daily</span>Qatar Helium Halt Threatens Global Chip Supply</a>
+
+    <div class="refs-section-title">[ 한국 반도체 산업 위험 — 브롬·헬륨 의존도 ]</div>
+    <a class="ref-link" href="https://www.businesskorea.co.kr/news/articleView.html?idxno=264835" target="_blank"><span class="ref-num">10</span><span class="ref-source">BusinessKorea</span>Middle East Conflict Threatens Korean Semiconductor Supply Chain</a>
+    <a class="ref-link" href="https://www.communicationstoday.co.in/middle-east-tensions-raise-supply-chain-risks-for-south-koreas-chip-industry/" target="_blank"><span class="ref-num">11</span><span class="ref-source">Communications Today</span>Middle East tensions raise supply chain risks for South Korea's chip industry</a>
+    <a class="ref-link" href="https://www.timeslive.co.za/news/world/2026-03-05-iran-crisis-could-disrupt-supply-of-key-chipmaking-materials-south-korea-warns/" target="_blank"><span class="ref-num">12</span><span class="ref-source">Reuters / Times Live</span>Iran crisis could disrupt supply of key chipmaking materials, South Korea warns</a>
+    <a class="ref-link" href="https://evertiq.com/design/2026-03-05-south-korea-flags-risk-to-semiconductor-materials-amid-iran-conflict" target="_blank"><span class="ref-num">13</span><span class="ref-source">Evertiq</span>South Korea flags risk to semiconductor materials amid Iran conflict</a>
+    <a class="ref-link" href="https://www.edgen.tech/news/us-stocks/strait-of-hormuz-blockade-cuts-33-of-global-helium-supply-threatening-chipmakers" target="_blank"><span class="ref-num">14</span><span class="ref-source">Edgen</span>Strait of Hormuz Blockade Cuts 33% of Global Helium Supply, Threatening Chipmakers</a>
+
+    <div class="refs-section-title">[ 갈륨·게르마늄 — 중국 수출 통제 ]</div>
+    <a class="ref-link" href="https://www.csis.org/analysis/beyond-rare-earths-chinas-growing-threat-gallium-supply-chains" target="_blank"><span class="ref-num">15</span><span class="ref-source">CSIS</span>Beyond Rare Earths: China's Growing Threat to Gallium Supply Chains</a>
+    <a class="ref-link" href="https://www.stimson.org/2025/chinas-germanium-and-gallium-export-restrictions-consequences-for-the-united-states/" target="_blank"><span class="ref-num">16</span><span class="ref-source">Stimson Center</span>China's Germanium and Gallium Export Restrictions: Consequences for the United States</a>
+    <a class="ref-link" href="https://www.piie.com/blogs/realtime-economics/2024/chinas-export-controls-critical-minerals-arent-starving-united-states" target="_blank"><span class="ref-num">17</span><span class="ref-source">PIIE</span>China's export controls on critical minerals aren't starving the United States—at least so far</a>
+    <a class="ref-link" href="https://globaltradealert.org/blog/chinese-export-controls-on-critical-raw-materials-inventory" target="_blank"><span class="ref-num">18</span><span class="ref-source">Global Trade Alert</span>China's Export Controls on Critical Raw Materials — Chronological inventory</a>
+
+    <div class="refs-section-title">[ 희토류 — 중국 수출 통제 & 공급망 ]</div>
+    <a class="ref-link" href="https://www.iea.org/commentaries/with-new-export-controls-on-critical-minerals-supply-concentration-risks-become-reality" target="_blank"><span class="ref-num">19</span><span class="ref-source">IEA</span>With new export controls on critical minerals, supply concentration risks become reality</a>
+    <a class="ref-link" href="https://www.csis.org/analysis/chinas-new-rare-earth-and-magnet-restrictions-threaten-us-defense-supply-chains" target="_blank"><span class="ref-num">20</span><span class="ref-source">CSIS</span>China's New Rare Earth and Magnet Restrictions Threaten U.S. Defense Supply Chains</a>
+    <a class="ref-link" href="https://www.china-briefing.com/news/chinas-rare-earth-export-controls-impacts-on-businesses/" target="_blank"><span class="ref-num">21</span><span class="ref-source">China Briefing</span>China's Rare Earth Export Controls — Impact on Businesses and Industries</a>
+    <a class="ref-link" href="https://epthinktank.eu/2025/11/24/chinas-rare-earth-export-restrictions/" target="_blank"><span class="ref-num">22</span><span class="ref-source">EU Parliament Think Tank</span>China's rare-earth export restrictions</a>
+    <a class="ref-link" href="https://www.aljazeera.com/news/2025/10/10/china-tightens-export-controls-on-rare-earth-metals-why-this-matters" target="_blank"><span class="ref-num">23</span><span class="ref-source">Al Jazeera</span>China tightens export controls on rare-earth metals: Why this matters</a>
+    <a class="ref-link" href="https://www.rff.org/publications/issue-briefs/the-strategic-game-of-rare-earths-why-china-may-only-be-in-favor-of-temporary-export-restrictions/" target="_blank"><span class="ref-num">24</span><span class="ref-source">RFF</span>The Strategic Game of Rare Earths: Why China May Only Be in Favor of Temporary Export Restrictions</a>
+  </div>
+</div>
+
+</div>
+
+<script>
+const MATERIALS = {
+  helium:{name:"Helium (He)",color:"#00e5ff",use:"Chip cooling, lithography heat transfer",warImpact:"CRITICAL",warDetail:"Qatar's Ras Laffan facility struck by Iranian drone. Possible 2–3 month shutdown, 4–6 months for supply chain normalization.",straitRisk:"Strait of Hormuz closure could block >25% of world helium supply",producers:[{country:"Qatar",share:34,lat:25.35,lng:51.18,warRisk:"CRITICAL",detail:"QatarEnergy's Ras Laffan Industrial City hit by drone. Production offline."},{country:"USA",share:30,lat:37.09,lng:-95.71,warRisk:"LOW",detail:"Major alternative supplier, not affected."},{country:"Algeria",share:10,lat:28.03,lng:1.65,warRisk:"LOW",detail:"Some supply, not directly impacted."},{country:"Australia",share:8,lat:-25.27,lng:133.77,warRisk:"NONE",detail:"Alternative source, stable."},{country:"Russia",share:7,lat:61.52,lng:105.31,warRisk:"LOW",detail:"Under sanctions; limited access for Western chipmakers."}]},
+  bromine:{name:"Bromine (Br)",color:"#ff6b35",use:"Etching, DRAM/NAND polysilicon process (HBr)",warImpact:"HIGH",warDetail:"Israel & Jordan produce ~66% of global bromine. South Korea sources 97.5% from Israel. Conflict directly threatens supply.",straitRisk:null,producers:[{country:"Israel",share:40,lat:31.04,lng:34.85,warRisk:"CRITICAL",detail:"Active war zone. South Korea gets 97.5% of bromine from here."},{country:"Jordan",share:26,lat:30.58,lng:36.23,warRisk:"HIGH",detail:"Border proximity to conflict."},{country:"USA",share:18,lat:37.09,lng:-95.71,warRisk:"NONE",detail:"Arkansas brine fields, alternative source."},{country:"China",share:10,lat:35.86,lng:104.19,warRisk:"LOW",detail:"Limited access due to US-China tech tensions."}]},
+  gallium:{name:"Gallium (Ga)",color:"#b39ddb",use:"GaAs, GaN chips; 5G, defense radar, power semiconductors",warImpact:"MEDIUM",warDetail:"China dominates 98% of unprocessed gallium. Export controls imposed mid-2025 targeting the US. Iran war is not a direct factor, but compounds US-China tech decoupling.",straitRisk:null,producers:[{country:"China",share:98,lat:35.86,lng:104.19,warRisk:"HIGH",detail:"Controls 98% of unprocessed gallium. Export controls since 2024–2025."},{country:"Russia",share:1,lat:61.52,lng:105.31,warRisk:"LOW",detail:"Minor producer, under sanctions."}]},
+  germanium:{name:"Germanium (Ge)",color:"#80cbc4",use:"Optical fibers, infrared optics, solar cells for chips",warImpact:"MEDIUM",warDetail:"China controls processing. Export restrictions to the US enacted December 2024. EU targeting mineral independence by 2030.",straitRisk:null,producers:[{country:"China",share:60,lat:35.86,lng:104.19,warRisk:"HIGH",detail:"Dominant processor. Export controls to US enacted Dec 2024."},{country:"Canada",share:10,lat:56.13,lng:-106.34,warRisk:"NONE",detail:"Alternative source being developed."},{country:"Russia",share:8,lat:61.52,lng:105.31,warRisk:"LOW",detail:"Under sanctions, limited access."},{country:"Belgium",share:8,lat:50.50,lng:4.46,warRisk:"NONE",detail:"Umicore processing. EU seeking independence by 2030."}]},
+  silicon:{name:"Silicon (Si)",color:"#fff176",use:"Wafers — the base of every chip",warImpact:"LOW",warDetail:"Silicon wafers primarily from Japan, Taiwan, Germany. Not directly affected by Iran conflict, but oil-driven energy inflation raises fab operating costs.",straitRisk:null,producers:[{country:"Japan",share:55,lat:36.20,lng:138.25,warRisk:"NONE",detail:"Shin-Etsu, Sumco — world's dominant wafer suppliers."},{country:"South Korea",share:15,lat:35.90,lng:127.86,warRisk:"LOW",detail:"Memory fab hub; exposed to Middle East material disruptions."},{country:"Germany",share:10,lat:51.16,lng:10.45,warRisk:"NONE",detail:"Wacker Chemie — major silicon producer."},{country:"Taiwan",share:8,lat:23.69,lng:120.96,warRisk:"LOW",detail:"TSMC uses 9% of Taiwan's electricity; energy prices rise with conflict."}]},
+  neon:{name:"Neon (Ne)",color:"#f48fb1",use:"Excimer lasers for chip lithography (EUV/DUV)",warImpact:"LOW",warDetail:"Ukraine was the historic key supplier (~70%) before 2022 Russian invasion. Supply rerouted via China. Iran conflict has no direct impact.",straitRisk:null,producers:[{country:"Ukraine",share:40,lat:48.37,lng:31.16,warRisk:"HIGH",detail:"Was ~70% before 2022. Russian invasion disrupted supply. Ongoing war."},{country:"China",share:25,lat:35.86,lng:104.19,warRisk:"MEDIUM",detail:"Major alternative since Ukraine war."},{country:"USA",share:12,lat:37.09,lng:-95.71,warRisk:"NONE",detail:"Domestic capacity being scaled up."},{country:"Russia",share:8,lat:61.52,lng:105.31,warRisk:"HIGH",detail:"Invaded Ukraine; under Western sanctions."}]},
+  rareEarths:{name:"Rare Earth Elements",color:"#a5d6a7",use:"Magnets, sensors, lasers, military electronics",warImpact:"MEDIUM",warDetail:"China controls 90% of refining + export controls on 7 heavy REEs (2025). Iran has significant deposits, signed Russia CRM partnership (Jan 2025), now at war — future supply route eliminated.",straitRisk:null,producers:[{country:"China",share:70,lat:35.86,lng:104.19,warRisk:"HIGH",detail:"Controls 70% mining, 90% refining. Export controls on heavy REEs early 2025."},{country:"USA",share:14,lat:37.09,lng:-95.71,warRisk:"NONE",detail:"MP Materials (Mountain Pass). Scaling up."},{country:"Australia",share:6,lat:-25.27,lng:133.77,warRisk:"NONE",detail:"Lynas — key Western-allied REE producer."},{country:"Iran",share:3,lat:32.42,lng:53.68,warRisk:"CRITICAL",detail:"8.5M ton lithium discovery (2023), REE deposits. Iran-Russia CRM partnership (Jan 2025). Now at war."},{country:"Russia",share:5,lat:61.52,lng:105.31,warRisk:"MEDIUM",detail:"Significant reserves. Strategic partner with Iran."}]},
+  cobalt:{name:"Cobalt (Co)",color:"#90caf9",use:"Chip packaging alloys, defense electronics",warImpact:"LOW",warDetail:"Primarily a DRC/African supply risk. DRC suspended exports for 4 months in Feb 2025. Iran's BRICS membership creates indirect linkage.",straitRisk:null,producers:[{country:"DR Congo",share:74,lat:-4.03,lng:21.75,warRisk:"HIGH",detail:"DRC suspended cobalt exports for 4 months in Feb 2025 to curb price decline."},{country:"Russia",share:5,lat:61.52,lng:105.31,warRisk:"LOW",detail:"Under Western sanctions."},{country:"Philippines",share:3,lat:12.87,lng:121.77,warRisk:"NONE",detail:"Alternative supplier."}]}
+};
+
+const RISK_COLORS={CRITICAL:"#ff1744",HIGH:"#ff6b35",MEDIUM:"#ffd740",LOW:"#69f0ae",NONE:"#37474f"};
+const RISK_BG={CRITICAL:"rgba(255,23,68,0.14)",HIGH:"rgba(255,107,53,0.14)",MEDIUM:"rgba(255,215,64,0.1)",LOW:"rgba(105,240,174,0.1)",NONE:"rgba(55,71,79,0.12)"};
+
+const CONTINENTS=[
+  "M 120,60 L 200,55 L 240,70 L 250,100 L 230,130 L 200,150 L 170,170 L 145,165 L 130,140 L 125,110 L 110,90 Z",
+  "M 175,175 L 200,170 L 215,190 L 220,220 L 210,260 L 195,285 L 175,290 L 160,270 L 155,240 L 160,205 Z",
+  "M 370,55 L 410,50 L 430,60 L 425,75 L 415,80 L 395,82 L 375,78 L 365,65 Z",
+  "M 380,90 L 420,85 L 445,100 L 450,130 L 445,165 L 430,195 L 405,215 L 385,210 L 365,190 L 360,155 L 365,120 L 370,95 Z",
+  "M 430,75 L 470,70 L 490,85 L 485,105 L 465,115 L 445,110 L 430,95 Z",
+  "M 470,55 L 530,50 L 560,65 L 555,85 L 520,90 L 480,80 L 465,68 Z",
+  "M 530,85 L 570,80 L 590,95 L 585,120 L 565,135 L 540,130 L 525,115 L 520,98 Z",
+  "M 575,55 L 640,50 L 665,70 L 660,100 L 635,115 L 600,110 L 575,90 L 568,70 Z",
+  "M 600,115 L 640,110 L 655,130 L 645,150 L 620,155 L 600,145 L 592,128 Z",
+  "M 620,195 L 680,190 L 700,210 L 695,245 L 670,260 L 635,255 L 615,235 L 610,210 Z",
+  "M 430,30 L 660,25 L 680,45 L 660,55 L 550,58 L 450,55 L 425,42 Z",
+];
+
+function latLng(lat,lng){
+  return{x:((lng+180)/360)*760+20,y:((90-lat)/180)*360+20};
+}
+
+// Build grid
+const grid=document.getElementById('grid');
+for(let i=0;i<=16;i++){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',i*50);l.setAttribute('y1',0);l.setAttribute('x2',i*50);l.setAttribute('y2',400);l.setAttribute('stroke','rgba(0,180,255,0.05)');l.setAttribute('stroke-width','0.5');grid.appendChild(l);}
+for(let i=0;i<=8;i++){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',0);l.setAttribute('y1',i*50);l.setAttribute('x2',800);l.setAttribute('y2',i*50);l.setAttribute('stroke','rgba(0,180,255,0.05)');l.setAttribute('stroke-width','0.5');grid.appendChild(l);}
+
+// Build continents
+const cont=document.getElementById('continents');
+CONTINENTS.forEach(d=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('fill','rgba(30,50,70,0.6)');p.setAttribute('stroke','rgba(0,120,180,0.2)');p.setAttribute('stroke-width','0.5');cont.appendChild(p);});
+
+// Strait pulse animation
+let straitAngle=0;
+function animateStrait(){
+  const c=document.getElementById('strait-pulse');
+  if(!c){requestAnimationFrame(animateStrait);return;}
+  straitAngle=(straitAngle+0.02)%(Math.PI*2);
+  const r=6+8*Math.abs(Math.sin(straitAngle));
+  const op=0.7*(1-Math.abs(Math.sin(straitAngle)));
+  c.setAttribute('r',r);
+  c.setAttribute('opacity',op);
+  requestAnimationFrame(animateStrait);
+}
+animateStrait();
+
+let current='helium';
+
+function render(key){
+  current=key;
+  const m=MATERIALS[key];
+  const rc=RISK_COLORS[m.warImpact];
+
+  // Banner
+  const banner=document.getElementById('war-banner');
+  banner.style.background=RISK_BG[m.warImpact];
+  banner.style.borderBottomColor=rc+'50';
+  const badge=document.getElementById('war-badge');
+  badge.textContent='WAR IMPACT: '+m.warImpact;
+  badge.style.background=rc;badge.style.color='#000';
+  document.getElementById('war-text').textContent=m.warDetail;
+
+  // Strait
+  document.getElementById('strait').style.display=m.straitRisk?'block':'none';
+
+  // Lines
+  const lines=document.getElementById('lines');
+  lines.innerHTML='';
+  m.producers.forEach(p=>{
+    const {x,y}=latLng(p.lat,p.lng);
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',x);l.setAttribute('y1',y);l.setAttribute('x2',400);l.setAttribute('y2',200);
+    l.setAttribute('stroke',RISK_COLORS[p.warRisk]);l.setAttribute('stroke-width','0.5');l.setAttribute('opacity','0.15');l.setAttribute('stroke-dasharray','3,4');
+    lines.appendChild(l);
+  });
+
+  // Nodes
+  const nodes=document.getElementById('nodes');
+  nodes.innerHTML='';
+  m.producers.forEach(p=>{
+    const {x,y}=latLng(p.lat,p.lng);
+    const risk=RISK_COLORS[p.warRisk];
+    const size=6+(p.share/100)*18;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor='pointer';
+
+    if(p.warRisk==='CRITICAL'||p.warRisk==='HIGH'){
+      const pulse=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      pulse.setAttribute('cx',x);pulse.setAttribute('cy',y);pulse.setAttribute('r',size+4);
+      pulse.setAttribute('fill','none');pulse.setAttribute('stroke',risk);pulse.setAttribute('stroke-width','1');pulse.setAttribute('opacity','0');
+      const an=document.createElementNS('http://www.w3.org/2000/svg','animate');
+      an.setAttribute('attributeName','r');an.setAttribute('values',`${size};${size+14};${size}`);an.setAttribute('dur','2.5s');an.setAttribute('repeatCount','indefinite');
+      const an2=document.createElementNS('http://www.w3.org/2000/svg','animate');
+      an2.setAttribute('attributeName','opacity');an2.setAttribute('values','0.7;0;0.7');an2.setAttribute('dur','2.5s');an2.setAttribute('repeatCount','indefinite');
+      pulse.appendChild(an);pulse.appendChild(an2);g.appendChild(pulse);
+    }
+
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',size);
+    c.setAttribute('fill',risk+'30');c.setAttribute('stroke',risk);c.setAttribute('stroke-width','1.5');
+    c.style.transition='all 0.2s';
+    g.appendChild(c);
+
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x);t.setAttribute('y',y+1);t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');
+    t.setAttribute('font-size',size>14?'8':'6');t.setAttribute('fill','#fff');t.setAttribute('font-weight','700');t.setAttribute('font-family','Share Tech Mono,monospace');t.style.pointerEvents='none';
+    t.textContent=p.share+'%';
+    g.appendChild(t);
+
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',x);lbl.setAttribute('y',y+size+9);lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','7.5');lbl.setAttribute('fill','#7a9ab0');lbl.setAttribute('letter-spacing','0.5');lbl.setAttribute('font-family','Rajdhani,sans-serif');lbl.style.pointerEvents='none';
+    lbl.textContent=p.country.toUpperCase();
+    g.appendChild(lbl);
+
+    g.addEventListener('mouseenter',()=>{
+      c.setAttribute('fill',risk);c.setAttribute('r',size+3);
+      const tt=document.getElementById('tooltip');
+      tt.style.display='block';
+      tt.style.borderColor=risk;
+      tt.style.boxShadow=`0 0 20px ${risk}40`;
+      document.getElementById('tt-country').textContent=p.country;
+      const b=document.getElementById('tt-badge');
+      b.textContent=p.warRisk;b.style.color=risk;b.style.borderColor=risk;b.style.border=`1px solid ${risk}`;
+      document.getElementById('tt-share').textContent='SHARE: '+p.share+'% of global supply';
+      document.getElementById('tt-detail').textContent=p.detail;
+    });
+    g.addEventListener('mouseleave',()=>{
+      c.setAttribute('fill',risk+'30');c.setAttribute('r',size);
+      document.getElementById('tooltip').style.display='none';
+    });
+    nodes.appendChild(g);
+  });
+
+  // Chip color
+  document.querySelector('#chip rect:first-child').setAttribute('stroke',m.color);
+  document.querySelector('#chip rect:nth-child(2)').setAttribute('fill',m.color+'20');
+  document.querySelector('#chip rect:nth-child(2)').setAttribute('stroke',m.color);
+  document.querySelectorAll('#chip line').forEach(l=>l.setAttribute('stroke',m.color));
+  document.querySelector('#chip text').setAttribute('fill',m.color);
+
+  // Right panel
+  const rn=document.getElementById('rp-name');
+  rn.textContent=m.name;rn.style.color=m.color;
+  document.getElementById('rp-use').textContent=m.use;
+
+  const bars=document.getElementById('rp-bars');
+  bars.innerHTML='<div class="rp-label">SUPPLY BREAKDOWN</div>';
+  m.producers.forEach(p=>{
+    const rc2=RISK_COLORS[p.warRisk];
+    bars.innerHTML+=`<div class="bar-row"><div class="bar-meta"><span class="bar-country">${p.country}</span><span class="bar-pct" style="color:${rc2}">${p.share}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${p.share}%;background:${rc2}"></div></div></div>`;
+  });
+
+  document.getElementById('rp-war').textContent=m.warDetail;
+  const sb=document.getElementById('rp-strait');
+  if(m.straitRisk){sb.style.display='block';sb.textContent='🚢 '+m.straitRisk;}else{sb.style.display='none';}
+
+  // Buttons
+  document.querySelectorAll('.mat-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.key===key);
+    b.style.borderLeftColor=b.dataset.key===key?MATERIALS[b.dataset.key].color:'transparent';
+  });
+}
+
+// Build left panel buttons
+const list=document.getElementById('mat-list');
+Object.entries(MATERIALS).forEach(([key,m])=>{
+  const btn=document.createElement('button');
+  btn.className='mat-btn';btn.dataset.key=key;
+  btn.innerHTML=`<span class="mat-dot" style="background:${m.color}"></span><span class="mat-name">${m.name}</span><span class="mat-risk" style="color:${RISK_COLORS[m.warImpact]}">WAR RISK: ${m.warImpact}</span>`;
+  btn.onclick=()=>render(key);
+  list.appendChild(btn);
+});
+
+render('helium');
+</script>
+</body>
+</html>
